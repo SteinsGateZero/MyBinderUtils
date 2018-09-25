@@ -14,11 +14,13 @@
             }
             
           之后在project的gradle中添加:
-            repositories {
-            
+           allprojects {
+                repositories {
                 maven { url 'https://jitpack.io' }
-  
-            }
+                google()
+                jcenter()
+                }
+           }
             
             
        使用方法:
