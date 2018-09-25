@@ -58,7 +58,6 @@ public class MyProcessor extends AbstractProcessor {
             method.addCode((i == 0 ? "" : " else ") + "if (activity instanceof $T) {\n", activityName);
             method.addCode("\t$T binder = new $T();\n", injectedType, injectedType);
             method.addCode("\tbinder.bind(($T) activity);\n", activityName);
-            method.addCode("\treturn;\n");
             method.addCode("}");
         }
 
@@ -81,7 +80,11 @@ public class MyProcessor extends AbstractProcessor {
             TypeName fieldTypeName = typeName(fieldInfo.getFieldTypeName());
             method.addCode("if (intent.hasExtra($S)) {\n", fieldInfo.getIntentName());
             method.addCode("\tactivity.$N = ($T) intent.getSerializableExtra($S);\n", fieldInfo.getFieldName(), fieldTypeName, fieldInfo.getIntentName());
-            method.addCode("\treturn;\n");
+            if (!fieldTypeName.toString().contains("java.lang")) {
+                method.addCode("\tif (activity.$N ==null){\n", fieldInfo.getFieldName());
+                method.addCode("\tactivity.$N = ($T) intent.getParcelableExtra($S);\n", fieldInfo.getFieldName(), fieldTypeName, fieldInfo.getIntentName());
+                method.addCode("\t}\n");
+            }
             method.addCode("}\n");
         }
 
