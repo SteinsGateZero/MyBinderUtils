@@ -7,9 +7,9 @@
           首先在app项目module的gradle中添加:
             dependencies{
             
-                implementation 'com.github.SteinsGateZero.MyBinderUtils:CoolBinder:v0.0.2'
+                implementation 'com.github.SteinsGateZero.MyBinderUtils:CoolBinder:v0.0.1'
             
-                annotationProcessor 'com.github.SteinsGateZero.MyBinderUtils:CoolBinderProcessor:v.0.0.2'
+                annotationProcessor 'com.github.SteinsGateZero.MyBinderUtils:CoolBinderProcessor:v.0.0.1'
             
             }
             
