@@ -9,7 +9,7 @@
             
                 implementation 'com.github.SteinsGateZero.MyBinderUtils:CoolBinder:v0.0.1'
             
-                annotationProcessor 'com.github.SteinsGateZero.MyBinderUtils:CoolBinderProcessor:v.0.0.1'
+                annotationProcessor 'com.github.SteinsGateZero.MyBinderUtils:CoolBinderProcessor:v0.0.1'
             
             }
             
