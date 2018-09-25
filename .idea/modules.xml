@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CoolBinder/coolbinderutils.iml" filepath="$PROJECT_DIR$/CoolBinder/coolbinderutils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CoolBinderAnnotation/CoolBinder.iml" filepath="$PROJECT_DIR$/CoolBinderAnnotation/CoolBinder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CoolBinderProcessor/CoolBinderProcessor.iml" filepath="$PROJECT_DIR$/CoolBinderProcessor/CoolBinderProcessor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MyBinderUtils.iml" filepath="$PROJECT_DIR$/MyBinderUtils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+    </modules>
+  </component>
+</project>
