@@ -76,7 +76,7 @@ public class MyProcessor extends AbstractProcessor {
         MethodSpec.Builder method = MethodSpec.methodBuilder("bind")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(activityName, paramName);
-        if (injectInfo.getType() == IntentKey.TYPE_ACTIVITY) {
+        if (injectInfo.getType() == IntentKey.Type.ACTIVITY) {
             method.addStatement("$T intent = $N.getIntent()", intentClassName, paramName);
         } else {
             method.addStatement("$T intent = $N.getActivity().getIntent()", intentClassName, paramName);

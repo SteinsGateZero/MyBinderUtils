@@ -21,7 +21,7 @@ public class BlankFragment extends Fragment {
 
     TextView textView;
 
-    @IntentKey(value = "keyinfo3", intentType = IntentKey.TYPE_FRAGMENT)
+    @IntentKey(value = "keyinfo3", intentType = IntentKey.Type.FRAGMENT)
     TestInfo info;
 
 

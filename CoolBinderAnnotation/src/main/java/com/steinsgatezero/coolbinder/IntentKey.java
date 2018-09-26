@@ -5,14 +5,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import static com.steinsgatezero.coolbinder.IntentKey.Type.ACTIVITY;
+
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
 public @interface IntentKey {
 
-     int TYPE_ACTIVITY = 0;
-     int TYPE_FRAGMENT = 1;
+    enum Type{
+        ACTIVITY,
+        FRAGMENT
+    }
 
-    @IntentType int intentType() default TYPE_ACTIVITY;
+     Type intentType() default ACTIVITY;
 
     String value();
 }
