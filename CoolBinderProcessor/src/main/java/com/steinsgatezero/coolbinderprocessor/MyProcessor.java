@@ -30,8 +30,9 @@ import javax.tools.Diagnostic;
 public class MyProcessor extends AbstractProcessor {
 
     private Messager mMessager;
-    private TypeName activityClassName = ClassName.get("android.app", "Activity").withoutAnnotations();
-    private TypeName intentClassName = ClassName.get("android.content", "Intent").withoutAnnotations();
+    //private final TypeName activityClassName = ClassName.get("android.app", "Activity").withoutAnnotations();
+    private final TypeName intentClassName = ClassName.get("android.content", "Intent").withoutAnnotations();
+    private final TypeName objClassName = ClassName.get("java.lang", "Object").withoutAnnotations();
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -46,43 +47,48 @@ public class MyProcessor extends AbstractProcessor {
             if (element.getKind() != ElementKind.FIELD) {
                 error(element, "Only fields can be annotated with @%s",
                         IntentKey.class.getSimpleName());
-                return true;
+                continue;
             }
             analysisAnnotated(element, list);
         }
-        MethodSpec.Builder method = MethodSpec.methodBuilder("bind").addModifiers(Modifier.PUBLIC, Modifier.STATIC).addParameter(activityClassName, "activity");
+
+        String paramName = "obj";
+        MethodSpec.Builder method = MethodSpec.methodBuilder("bind").addModifiers(Modifier.PUBLIC, Modifier.STATIC).addParameter(objClassName, paramName);
         for (int i = 0; i < list.size(); i++) {
             InjectInfo injectInfo = list.get(i);
-            TypeName injectedType = createInjectClassFile(injectInfo);
+            TypeName injectedType = createInjectClassFile(injectInfo, paramName);
             TypeName activityName = typeName(injectInfo.getTypeName());
-            method.addCode((i == 0 ? "" : " else ") + "if (activity instanceof $T) {\n", activityName);
+            method.addCode((i == 0 ? "" : " else ") + "if ($N instanceof $T) {\n", paramName, activityName);
             method.addCode("\t$T binder = new $T();\n", injectedType, injectedType);
-            method.addCode("\tbinder.bind(($T) activity);\n", activityName);
-            method.addCode("}");
+            method.addCode("\tbinder.bind(($T) $N);\n", activityName, paramName);
+            method.addCode("\t}\n");
         }
 
         createJavaFile("com.steinsgatezero", "MyIntentBinderUtils", method.build());
         return true;
     }
 
-    private TypeName createInjectClassFile(InjectInfo injectInfo) {
+    private TypeName createInjectClassFile(InjectInfo injectInfo, String paramName) {
 
         ClassName activityName = className(injectInfo.getTypeName());
-        ClassName injectedClass = ClassName.get(activityName.packageName(), activityName.simpleName() + "$Binder");
+        ClassName injectedClass = ClassName.get(activityName.packageName(), activityName.simpleName() + "$CoolBinder");
 
         MethodSpec.Builder method = MethodSpec.methodBuilder("bind")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addParameter(activityName, "activity");
-
-        method.addStatement("$T intent = activity.getIntent()", intentClassName);
+                .addParameter(activityName, paramName);
+        if (injectInfo.getType() == IntentKey.TYPE_ACTIVITY) {
+            method.addStatement("$T intent = $N.getIntent()", intentClassName, paramName);
+        } else {
+            method.addStatement("$T intent = $N.getActivity().getIntent()", intentClassName, paramName);
+        }
         for (int i = 0; i < injectInfo.getList().size(); i++) {
             FieldInfo fieldInfo = injectInfo.getList().get(i);
             TypeName fieldTypeName = typeName(fieldInfo.getFieldTypeName());
             method.addCode("if (intent.hasExtra($S)) {\n", fieldInfo.getIntentName());
-            method.addCode("\tactivity.$N = ($T) intent.getSerializableExtra($S);\n", fieldInfo.getFieldName(), fieldTypeName, fieldInfo.getIntentName());
+            method.addCode("\t$N.$N = ($T) intent.getSerializableExtra($S);\n", paramName, fieldInfo.getFieldName(), fieldTypeName, fieldInfo.getIntentName());
             if (!fieldTypeName.toString().contains("java.lang")) {
-                method.addCode("\tif (activity.$N ==null){\n", fieldInfo.getFieldName());
-                method.addCode("\tactivity.$N = ($T) intent.getParcelableExtra($S);\n", fieldInfo.getFieldName(), fieldTypeName, fieldInfo.getIntentName());
+                method.addCode("\tif ($N.$N ==null){\n", paramName, fieldInfo.getFieldName());
+                method.addCode("\t$N.$N = ($T) intent.getParcelableExtra($S);\n", paramName, fieldInfo.getFieldName(), fieldTypeName, fieldInfo.getIntentName());
                 method.addCode("\t}\n");
             }
             method.addCode("}\n");
@@ -158,6 +164,7 @@ public class MyProcessor extends AbstractProcessor {
         info.setIntentName(classElement.getAnnotation(IntentKey.class).value());
         infoList.add(info);
         injectInfo.setList(infoList);
+        injectInfo.setType(classElement.getAnnotation(IntentKey.class).intentType());
         if (!list.contains(injectInfo)) {
             //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "1" + injectInfo.getTypeName());
             list.add(injectInfo);

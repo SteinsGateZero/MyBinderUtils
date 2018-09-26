@@ -6,6 +6,16 @@ final class InjectInfo {
     private String typeName;
     private List<FieldInfo> list;
 
+    private int type;
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
     public String getTypeName() {
         return typeName;
     }
