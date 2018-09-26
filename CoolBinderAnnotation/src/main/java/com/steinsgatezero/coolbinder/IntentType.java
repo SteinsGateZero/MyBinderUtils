@@ -12,7 +12,7 @@ import static com.steinsgatezero.coolbinder.IntentKey.TYPE_ACTIVITY;
 import static com.steinsgatezero.coolbinder.IntentKey.TYPE_FRAGMENT;
 
 
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 @IntDef({TYPE_ACTIVITY, TYPE_FRAGMENT})
 @interface IntentType {

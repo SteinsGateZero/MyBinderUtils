@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface IntentKey {
 
-    public static final int TYPE_ACTIVITY = 0;
-    public static final int TYPE_FRAGMENT = 1;
+     int TYPE_ACTIVITY = 0;
+     int TYPE_FRAGMENT = 1;
 
     @IntentType int intentType() default TYPE_ACTIVITY;
 
