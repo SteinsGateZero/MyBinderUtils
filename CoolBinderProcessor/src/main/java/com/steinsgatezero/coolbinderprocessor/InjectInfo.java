@@ -1,6 +1,6 @@
 package com.steinsgatezero.coolbinderprocessor;
 
-import com.steinsgatezero.coolbinder.IntentKey;
+import com.steinsgatezero.coolbinder.IntentType;
 
 import java.util.List;
 
@@ -8,13 +8,13 @@ final class InjectInfo {
     private String typeName;
     private List<FieldInfo> list;
 
-    private IntentKey.Type type;
+    private IntentType type;
 
-    public IntentKey.Type getType() {
+    public IntentType getType() {
         return type;
     }
 
-    public void setType(IntentKey.Type type) {
+    public void setType(IntentType type) {
         this.type = type;
     }
 

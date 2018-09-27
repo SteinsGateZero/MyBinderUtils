@@ -7,6 +7,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.steinsgatezero.coolbinder.IntentKey;
+import com.steinsgatezero.coolbinder.IntentType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,21 +43,26 @@ public class MyProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        ParseIntentKeyTargets(roundEnv);
+        return true;
+    }
+
+    private void ParseIntentKeyTargets(RoundEnvironment env) {
         List<InjectInfo> list = new ArrayList<>();
-        for (Element element : roundEnv.getElementsAnnotatedWith(IntentKey.class)) {
+        for (Element element : env.getElementsAnnotatedWith(IntentKey.class)) {
             if (element.getKind() != ElementKind.FIELD) {
                 error(element, "Only fields can be annotated with @%s",
                         IntentKey.class.getSimpleName());
                 continue;
             }
-            analysisAnnotated(element, list);
+            analysisIntentKey(element, list);
         }
 
         String paramName = "obj";
         MethodSpec.Builder method = MethodSpec.methodBuilder("bind").addModifiers(Modifier.PUBLIC, Modifier.STATIC).addParameter(objClassName, paramName);
         for (int i = 0; i < list.size(); i++) {
             InjectInfo injectInfo = list.get(i);
-            TypeName injectedType = createInjectClassFile(injectInfo, paramName);
+            TypeName injectedType = createIntentKeyInjectFile(injectInfo, paramName);
             TypeName activityName = typeName(injectInfo.getTypeName());
             method.addCode((i == 0 ? "" : " else ") + "if ($N instanceof $T) {\n", paramName, activityName);
             method.addCode("\t$T binder = new $T();\n", injectedType, injectedType);
@@ -65,10 +71,9 @@ public class MyProcessor extends AbstractProcessor {
         }
 
         createJavaFile("com.steinsgatezero", "MyIntentBinderUtils", method.build());
-        return true;
     }
 
-    private TypeName createInjectClassFile(InjectInfo injectInfo, String paramName) {
+    private TypeName createIntentKeyInjectFile(InjectInfo injectInfo, String paramName) {
 
         ClassName activityName = className(injectInfo.getTypeName());
         ClassName injectedClass = ClassName.get(activityName.packageName(), activityName.simpleName() + "$CoolBinder");
@@ -76,7 +81,7 @@ public class MyProcessor extends AbstractProcessor {
         MethodSpec.Builder method = MethodSpec.methodBuilder("bind")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(activityName, paramName);
-        if (injectInfo.getType() == IntentKey.Type.ACTIVITY) {
+        if (injectInfo.getType() == IntentType.ACTIVITY) {
             method.addStatement("$T intent = $N.getIntent()", intentClassName, paramName);
         } else {
             method.addStatement("$T intent = $N.getActivity().getIntent()", intentClassName, paramName);
@@ -97,6 +102,29 @@ public class MyProcessor extends AbstractProcessor {
         createJavaFile(injectedClass.packageName(), injectedClass.simpleName(), method.build());
 
         return injectedClass;
+    }
+
+    private void analysisIntentKey(Element classElement, List<InjectInfo> list) {
+        TypeElement classType = (TypeElement) classElement.getEnclosingElement();
+        String typeName = classType.getQualifiedName().toString();
+        InjectInfo injectInfo = new InjectInfo();
+        injectInfo.setTypeName(typeName);
+        List<FieldInfo> infoList = new ArrayList<>();
+        FieldInfo info = new FieldInfo();
+        info.setFieldName(classElement.getSimpleName().toString());
+        info.setFieldTypeName(classElement.asType().toString());
+        info.setIntentName(classElement.getAnnotation(IntentKey.class).value());
+        infoList.add(info);
+        injectInfo.setList(infoList);
+        injectInfo.setType(classElement.getAnnotation(IntentKey.class).intentType());
+        if (!list.contains(injectInfo)) {
+            //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "1" + injectInfo.getTypeName());
+            list.add(injectInfo);
+        } else {
+            //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "2" + injectInfo.getTypeName());
+            list.get(list.indexOf(injectInfo)).getList().add(info);
+        }
+
     }
 
     private void createJavaFile(String pkg, String classShortName, MethodSpec... method) {
@@ -150,29 +178,6 @@ public class MyProcessor extends AbstractProcessor {
         String packageD = className.substring(0, className.lastIndexOf('.'));
         String name = className.substring(className.lastIndexOf('.') + 1);
         return ClassName.get(packageD, name);
-    }
-
-    private void analysisAnnotated(Element classElement, List<InjectInfo> list) {
-        TypeElement classType = (TypeElement) classElement.getEnclosingElement();
-        String typeName = classType.getQualifiedName().toString();
-        InjectInfo injectInfo = new InjectInfo();
-        injectInfo.setTypeName(typeName);
-        List<FieldInfo> infoList = new ArrayList<>();
-        FieldInfo info = new FieldInfo();
-        info.setFieldName(classElement.getSimpleName().toString());
-        info.setFieldTypeName(classElement.asType().toString());
-        info.setIntentName(classElement.getAnnotation(IntentKey.class).value());
-        infoList.add(info);
-        injectInfo.setList(infoList);
-        injectInfo.setType(classElement.getAnnotation(IntentKey.class).intentType());
-        if (!list.contains(injectInfo)) {
-            //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "1" + injectInfo.getTypeName());
-            list.add(injectInfo);
-        } else {
-            //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "2" + injectInfo.getTypeName());
-            list.get(list.indexOf(injectInfo)).getList().add(info);
-        }
-
     }
 
     @Override

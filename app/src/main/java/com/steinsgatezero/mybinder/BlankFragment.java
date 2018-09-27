@@ -3,13 +3,13 @@ package com.steinsgatezero.mybinder;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.steinsgatezero.coolbinder.IntentKey;
+import com.steinsgatezero.coolbinder.IntentType;
 import com.steinsgatezero.coolbinderutils.IntentBinder;
 
 
@@ -21,7 +21,7 @@ public class BlankFragment extends Fragment {
 
     TextView textView;
 
-    @IntentKey(value = "keyinfo3", intentType = IntentKey.Type.FRAGMENT)
+    @IntentKey(value = "keyinfo3", intentType = IntentType.FRAGMENT)
     TestInfo info;
 
 
