@@ -33,10 +33,10 @@
             TestInfo info;
             @IntentKey("keyinfo2")
             TestInfo2 info2;
-            之后在oncreate方法中添加注入:IntentBinder.inject(this);
+            之后在使用对象之前添加注入:IntentBinder.inject(this);
             
           在fragment中绑定相应对象如下:
             //注意intentkey显示的声明为TYPE_FRAGMENT类型
-            @IntentKey(value = "keyinfo3", intentType = IntentKey.TYPE_FRAGMENT)
+            @IntentKey(value = "keyinfo3", intentType = IntentType.FRAGMENT)
             TestInfo info;
             之后在相应方法中添加注入:IntentBinder.inject(this);
