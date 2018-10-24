@@ -17,6 +17,7 @@ public class Main2Activity extends AppCompatActivity {
     TestInfo info;
     @IntentKey("keyinfo2")
     TestInfo2 info2;
+
     TextView textView;
 
     @Override
@@ -33,4 +34,5 @@ public class Main2Activity extends AppCompatActivity {
         }
 
     }
+
 }

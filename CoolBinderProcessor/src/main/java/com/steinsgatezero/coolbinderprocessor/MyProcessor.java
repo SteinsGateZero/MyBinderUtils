@@ -51,7 +51,7 @@ public class MyProcessor extends AbstractProcessor {
         List<InjectInfo> list = new ArrayList<>();
         for (Element element : env.getElementsAnnotatedWith(IntentKey.class)) {
             if (element.getKind() != ElementKind.FIELD) {
-                error(element, "Only fields can be annotated with @%s",
+                error(element, "Only fields or methods can be annotated with @%s",
                         IntentKey.class.getSimpleName());
                 continue;
             }
